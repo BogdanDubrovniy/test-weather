@@ -1,16 +1,19 @@
 import { Request, Response, NextFunction } from 'express';
 import { validate } from 'class-validator';
 import { plainToClass } from 'class-transformer';
+import { BAD_REQUEST_CODE } from '../../constants';
+import { BadRequestError } from '../../utils';
 
-export function queryValidatorMiddleware<T>(type: new () => T) {
+export function queryValidatorMiddleware<T>(clazz: new () => T) {
     return async (req: Request, res: Response, next: NextFunction) => {
-        const input = plainToClass(type, req.query);
+        const input = plainToClass(clazz, req.query);
         const errors = await validate(input as object);
 
         if (errors.length > 0) {
             const errorMessages = errors.map(error => Object.values(error.constraints || {}).join(', '));
-            res.status(400).json({ errors: errorMessages });
-            next({ errors: errorMessages });
+            const errorBody = new BadRequestError('Wrong data', { errors: errorMessages });
+            res.status(BAD_REQUEST_CODE).json(errorBody);
+            next(errorBody);
         } else next();
     };
 }

@@ -1,12 +1,13 @@
 import { City, OHLC, TemperatureDto } from './types';
 import TemperatureStore from './store';
+import { NotFoundError } from '../utils';
 
 class TemperatureService {
     private readonly dataStore = TemperatureStore;
 
     public getDataByCity(city: City) {
         const cityMap = this.dataStore.get(city);
-        if (!cityMap) throw new Error('City not found!');
+        if (!cityMap) throw new NotFoundError('City not found!');
         return Array.from(cityMap.values()).sort((a, b) => a.timestamp.localeCompare(b.timestamp));
     }
 
@@ -41,7 +42,7 @@ class TemperatureService {
         date.setMinutes(0);
         date.setSeconds(0);
         date.setMilliseconds(0);
-        return date.toISOString(); // hour as a key!
+        return date.toISOString(); // an hour as a key!
     }
 
     private updateOldTemperatureValues(ohlc: OHLC, temperature: number) {

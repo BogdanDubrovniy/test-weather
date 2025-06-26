@@ -1,0 +1,30 @@
+{
+  "name": "test-weather",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start-back": "ts-node src/back-server.ts",
+    "build": "tsc",
+    "serve": "node dist/server.js"
+  },
+  "main": "index.js",
+  "dependencies": {
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.2",
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "ws": "^8.18.2"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.3",
+    "@types/node": "^24.0.3",
+    "@types/ws": "^8.18.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
+  }
+}

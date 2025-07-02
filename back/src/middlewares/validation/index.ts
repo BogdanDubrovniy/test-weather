@@ -1,1 +1,1 @@
-export * from './query-validator';
+export * from './param-validator';

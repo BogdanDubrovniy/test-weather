@@ -5,3 +5,8 @@ export interface OHLC {
     low: number;
     timestamp: string;
 }
+
+export interface City {
+    id: string;
+    name: string;
+}

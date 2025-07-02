@@ -10,7 +10,7 @@ import type { OHLC } from '../components/app/types.ts';
  * @param svgRef {RefObject<SVGSVGElement | null>} - SVG ref
  * @param data {OHLC[]} - data array
  */
-export const renderDiagram = (svgRef: RefObject<SVGSVGElement | null>, data: OHLC[]) => {
+export const renderDiagram = (svgRef: RefObject<SVGSVGElement | null>, data: OHLC[] | null) => {
     const svg = d3.select(svgRef.current);
     svg.selectAll('*').remove();
 
@@ -18,10 +18,10 @@ export const renderDiagram = (svgRef: RefObject<SVGSVGElement | null>, data: OHL
     const height = 400;
     const margin = { top: 20, right: 30, bottom: 30, left: 50 };
 
-    const chartData = data.map(d => ({
+    const chartData = data?.map(d => ({
         ...d,
         date: new Date(d.timestamp),
-    }));
+    })) || [];
 
     // X: ordinal index scale instead of time
     const x = d3

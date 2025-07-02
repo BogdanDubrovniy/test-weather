@@ -1,38 +1,27 @@
-import { useState, useEffect, useRef, useId, type RefObject } from 'react';
-import { fetchStatistic, getCities, renderDiagram } from '../../utils';
-import type { OHLC } from './types.ts';
-import type { City } from '../../utils/types.ts';
+import { useState, useEffect, useRef, type RefObject } from 'react';
+import { fetchStatistic, renderDiagram } from '../../utils';
+import { useCities, useCityStatistic } from '../../hooks';
 
 function App() {
-    const [ selectedCity, setSelectedCity ] = useState<City>(getCities()[0]);
-    const [ data, setData ] = useState<OHLC[]>([]);
-    const [ error, setError ] = useState<string | null>(null);
+    const { cities, loading: citiesLoading, error: cityError, } = useCities();
+    const [ selectedCity, setSelectedCity ] = useState<string>('');
+    const { data: statistics, error } = useCityStatistic(selectedCity, fetchStatistic);
     const svgRef: RefObject<SVGSVGElement | null> = useRef<SVGSVGElement>(null);
 
-    // Fetch data from API
+    // Choose an initial city
     useEffect(() => {
-        const fetchData = async (city: City) => {
-            setError(null);
-
-            // todo mock start:
-            // setData(getMockData());
-            // todo end:
-
-            try {
-                setData(await fetchStatistic(city));
-            } catch (err: any) {
-                setError(err.message);
-                setData([]);
-            }
-        };
-        fetchData(selectedCity);
-    }, [ selectedCity ]);
+        if (cities.length > 0 && !selectedCity) setSelectedCity(cities[0].id);
+    }, [ cities ]);
 
     // Render D3 candlestick chart
     useEffect(() => {
-        if (!svgRef.current || data.length === 0) return;
-        renderDiagram(svgRef, data);
-    }, [ data ]);
+        if (!svgRef.current || statistics?.length === 0) return;
+        renderDiagram(svgRef, statistics);
+    }, [ statistics, cities ]);
+
+    if (citiesLoading) return <div className="diagram">Cities loading...</div>
+    if (cityError) return <div className="error">Cities cannot be loaded loading: {cityError}</div>
+    if (!cities.length) return <div className="diagram">There is no provided cities</div>
 
     return (
         <div className="diagram">
@@ -40,11 +29,11 @@ function App() {
             <label htmlFor="citySelect">Choose a city: </label>
             <select id="citySelect"
                     value={selectedCity}
-                    onChange={(e) => setSelectedCity(e.target.value as City)}>
-                {getCities().map(city => <option key={useId()} value={city}>{city}</option>)}
+                    onChange={(e) => setSelectedCity(e.target.value)}>
+                {cities.map(city => <option key={city.id} value={city.id}>{city.name}</option>)}
             </select>
             {error && <div className="error">{error}</div>}
-            {data.length === 0 && !error && <div>Data is being uploaded...</div>}
+            {statistics?.length === 0 && !error && <div>Data is being uploaded...</div>}
 
             <svg ref={svgRef} width="800" height="400"></svg>
         </div>

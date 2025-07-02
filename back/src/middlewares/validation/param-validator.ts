@@ -4,9 +4,9 @@ import { plainToClass } from 'class-transformer';
 import { BAD_REQUEST_CODE } from '../../constants';
 import { BadRequestError } from '../../utils';
 
-export function queryValidatorMiddleware<T>(clazz: new () => T) {
+export function paramValidatorMiddleware<T>(clazz: new () => T) {
     return async (req: Request, res: Response, next: NextFunction) => {
-        const input = plainToClass(clazz, req.query);
+        const input = plainToClass(clazz, req.params);
         const errors = await validate(input as object);
 
         if (errors.length > 0) {

@@ -1,8 +1,8 @@
 const WebSocket = require('ws');
 const PORT = 8765;
 
-const INTERVAL_MS = 100; // ~10 events/sec // todo there is rate limits!
-// const INTERVAL_MS = 10_000; // ~10 events/sec
+// const INTERVAL_MS = 100; // ~10 events/sec // todo there is rate limits!
+const INTERVAL_MS = 10_000; // ~10 events/sec
 const cities = {
     Berlin: [52.52, 13.41],
     NewYork: [40.71, -74.01],

@@ -2,7 +2,6 @@ import { Service } from 'typedi';
 import { TemperatureDto } from './types';
 import { NotFoundError, REDIS_CHANNEL, RedisService } from '../utils';
 import { CityService } from '../city/service';
-import { City } from '../city/model';
 import { Statistic } from './model';
 
 @Service()
@@ -31,7 +30,7 @@ export class StatisticService {
     private async processTemperatureData(data: TemperatureDto) {
         const { city, temperature: gotTemperature, timestamp } = data;
 
-        const cityEntry = await City.unscoped().findOne({ where: { name: city } });
+        const cityEntry = await this.cityService.getByCityName(city);
         if (!cityEntry) return;
 
         const temperature = gotTemperature;

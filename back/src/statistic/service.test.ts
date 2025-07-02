@@ -1,89 +1,68 @@
-// import { City, OHLC, TemperatureDto } from './types';
-// import TemperatureStore from './store';
-// import { NotFoundError } from '../utils';
-// import {StatisticService} from "./service";
-//
-// describe('TemperatureService', () => {
-//     let mockDataStore: Map<City, Map<string, OHLC>>;
-//     const service = StatisticService;
-//
-//     beforeEach(() => {
-//         mockDataStore = new Map<City, Map<string, OHLC>>();
-//         jest.spyOn(TemperatureStore, 'get').mockImplementation(city => mockDataStore.get(city));
-//         jest.spyOn(TemperatureStore, 'set').mockImplementation((city, map) => mockDataStore.set(city, map));
-//     });
-//
-//     afterEach(() => {
-//         jest.clearAllMocks();
-//     });
-//
-//     describe('getDataByCity', () => {
-//         it('should return data', () => {
-//             const city: City = 'Berlin';
-//             mockDataStore.set(city, new Map<string, OHLC>().set('2025-01-01T11:00:00.000Z', {
-//                 open: 10.5,
-//                 close: 25.7,
-//                 high: 17.0,
-//                 low: 11.0,
-//                 timestamp: '2025-01-01T11:00:00.000Z',
-//             }));
-//
-//             const result = tempService.getDataByCity(city);
-//
-//             expect(result).toEqual([
-//                 {
-//                     open: 10.5,
-//                     close: 25.7,
-//                     high: 17.0,
-//                     low: 11.0,
-//                     timestamp: '2025-01-01T11:00:00.000Z',
-//                 },
-//             ]);
-//             expect(TemperatureStore.get).toHaveBeenCalledWith(city);
-//         });
-//
-//         it('should throw an error', () => {
-//             expect(() => service.getDataByCity('dfdfdf' as City)).toThrow(
-//                 new NotFoundError('City not found!'),
-//             );
-//         });
-//     });
-//
-//     describe('processTemperatureData', () => {
-//         it('should set new data', () => {
-//             const city = 'Tokyo';
-//             expect(TemperatureStore.get(city)?.values()).toBe(undefined);
-//             const data: TemperatureDto = { temperature: 25, timestamp: '2025-01-01T11:00:00.000Z', city: 'Tokyo' };
-//             expect(tempService.processTemperatureData(data)).toEqual(undefined);
-//             expect(tempService.getDataByCity(city)).toEqual([{
-//                 open: 25,
-//                 high: 25,
-//                 low: 25,
-//                 close: 25,
-//                 timestamp: '2025-01-01T11:00:00.000Z',
-//             }]);
-//         });
-//
-//         it('should update data', () => {
-//             const city: City = 'CapeTown';
-//             mockDataStore.set(city, new Map<string, OHLC>().set('2025-01-01T11:00:00.000Z', {
-//                 open: 10.5,
-//                 close: 15.7,
-//                 high: 17.0,
-//                 low: 11.0,
-//                 timestamp: '2025-01-01T11:00:00.000Z',
-//             }));
-//             expect(TemperatureStore.get(city)?.values()).not.toBe(undefined);
-//
-//             const data: TemperatureDto = { temperature: 25, timestamp: '2025-01-01T11:00:00.000Z', city: 'CapeTown' };
-//             expect(tempService.processTemperatureData(data)).toEqual(undefined);
-//             expect(tempService.getDataByCity(city)).toEqual([{
-//                 open: 10.5,
-//                 high: 25,
-//                 low: 11,
-//                 close: 25,
-//                 timestamp: '2025-01-01T11:00:00.000Z',
-//             }]);
-//         });
-//     });
-// });
+import 'reflect-metadata';
+import {createTestingModule, RedisService, TestingModule} from '../utils';
+import { StatisticService } from './service';
+import { City } from '../city/model';
+import { Statistic } from './model';
+import {CityService} from "../city/service";
+
+const TEST_CITY_ID = 'test-city-id';
+const TEST_CITY_NAME = 'TestCity';
+
+const statisticExample: Statistic = {
+    open: 10,
+    close: 10.2,
+    low: 10,
+    high: 10.2,
+    cityId: TEST_CITY_ID,
+    timestamp: '2025-07-02 10:00:00',
+} as Statistic;
+
+const cityExample: City = {
+    id: TEST_CITY_ID,
+    name: TEST_CITY_NAME,
+    statistics: [ statisticExample ],
+} as City;
+
+const cityServiceMethods = () => ({
+    getById: jest.fn((id: string) => {
+        if (id === TEST_CITY_ID) return Promise.resolve<City>(cityExample);
+        return null;
+    }),
+});
+
+describe('CityService', () => {
+    let testingModule: TestingModule;
+    let service: StatisticService;
+    let cityServiceMock: ReturnType<typeof cityServiceMethods>;
+
+    beforeAll(() => {
+        cityServiceMock = cityServiceMethods();
+        testingModule = createTestingModule()
+            .mock(CityService, cityServiceMock)
+            .mock(RedisService, jest.fn());
+        service = testingModule.get(StatisticService);
+    });
+
+    afterAll(() => {
+        testingModule.reset();
+    });
+
+    beforeEach(() => {
+        jest.clearAllMocks();
+    });
+
+    it('should be defined', () => {
+        expect(testingModule).toBeDefined();
+        expect(service).toBeDefined();
+        expect(cityServiceMock).toBeDefined();
+    });
+
+    describe('getDataById', () => {
+        it('should return data by city id', async () => {
+            const getOneSpy = jest.spyOn(cityServiceMock, 'getById');
+            const resp = await service.getDataById(TEST_CITY_ID);
+            expect(resp).toEqual([ statisticExample ]);
+            expect(getOneSpy).toHaveBeenCalledTimes(1);
+        });
+    });
+});

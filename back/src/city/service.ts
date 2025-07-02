@@ -10,4 +10,8 @@ export class CityService {
     getById(id: string) {
         return City.scope('full').findByPk(id);
     }
+
+    getByCityName(name: string) {
+        return City.unscoped().findOne({ where: { name } });
+    }
 }

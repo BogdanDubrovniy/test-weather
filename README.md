@@ -11,10 +11,12 @@ To run the app, use the next sequence:
 Added Cors settings to Back-end (Front can use Back-end API endpoint).
 Added query validation using 'class-validator'.
 Stored data in DB (Postgres), transering data between services is by Redis Streams.
+Added eslint, to run, call "npm run lint" from /back.
+Added pino as a logger library.
 
 To do:
-1. Add lint and styles checking.
-2. Add a documentation for the back-end endpoints (Open API).
+1. Add a documentation for the back-end endpoints (Open API).
+2. Implemented authN/authZ.
 
 ### Feature Documentation:
 The main idea of this application is gathering temperature statistic by provided cities and draw the graph of the changed temperature during the day hourly.

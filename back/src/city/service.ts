@@ -3,15 +3,15 @@ import { City } from './model';
 
 @Service()
 export class CityService {
-    getAll() {
-        return City.unscoped().findAll();
-    }
+  getAll() {
+    return City.unscoped().findAll();
+  }
 
-    getById(id: string) {
-        return City.scope('full').findByPk(id);
-    }
+  getById(id: string) {
+    return City.scope('full').findByPk(id);
+  }
 
-    getByCityName(name: string) {
-        return City.unscoped().findOne({ where: { name } });
-    }
+  getByCityName(name: string) {
+    return City.unscoped().findOne({ where: { name } });
+  }
 }

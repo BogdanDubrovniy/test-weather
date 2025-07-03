@@ -9,6 +9,7 @@ import statisticRoute from './statistic/route';
 import cityRoute from './city/route';
 import { StatisticService } from './statistic/service';
 import { CANDLE_ENDPOINT, CITY_ENDPOINT } from './utils';
+import { logger } from './utils/logger';
 
 const app = express();
 const { port = 3000 } = configs;
@@ -20,7 +21,7 @@ app.use(`/${CITY_ENDPOINT}`, cityRoute);
 app.use(errorMiddleware);
 
 app.listen(port, async () => {
-    await seqConfig.authenticate();
-    console.log(`Server running on http://localhost:${port}`);
-    statisticService.listenData();
+  await seqConfig.authenticate();
+  logger.info(`Server running on http://localhost:${port}`);
+  statisticService.listenData();
 });
